@@ -6,8 +6,7 @@ const jwt = require('jsonwebtoken');
 const HASURA_OPERATION = `
 mutation SingUp($username: String, $password: String, $email: String, $type: String) {
   insert_users_one(object: {email: $email, password: $password, username: $username,type: $type}) {
-    id,
-    type
+    id
   }
 }
 `;
@@ -19,7 +18,7 @@ const execute = async (variables) => {
     {
       method: 'POST',
       headers: {
-        'x-hasura-admin-secret': 'mVYO7eFOklw4FlW-7c2x6CitEAHMIN7r5j4NtioeLjw'
+        'x-hasura-admin-secret': process.env.ADMIN_SECRET
       },
       body: JSON.stringify({
         query: HASURA_OPERATION,

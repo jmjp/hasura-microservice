@@ -32,7 +32,7 @@ const execute = async (variables,isEmail) => {
     {
       method: 'POST',
       headers: {
-        'x-hasura-admin-secret': 'mVYO7eFOklw4FlW-7c2x6CitEAHMIN7r5j4NtioeLjw'
+        'x-hasura-admin-secret': process.env.ADMIN_SECRET
       },
       body: JSON.stringify({
         query: isEmail == true ? login_by_email  : login_by_username,
