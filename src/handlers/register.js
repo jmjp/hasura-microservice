@@ -18,6 +18,9 @@ const execute = async (variables) => {
     "https://spaces-cloud.herokuapp.com/v1/graphql",
     {
       method: 'POST',
+      headers: {
+        'x-hasura-admin-secret': 'mVYO7eFOklw4FlW-7c2x6CitEAHMIN7r5j4NtioeLjw'
+      },
       body: JSON.stringify({
         query: HASURA_OPERATION,
         variables
