@@ -4,9 +4,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const HASURA_OPERATION = `
-mutation SingUp($username: String, $password: String, $email: String) {
-  insert_users_one(object: {email: $email, password: $password, username: $username}) {
-    id
+mutation SingUp($username: String, $password: String, $email: String, $type: String) {
+  insert_users_one(object: {email: $email, password: $password, username: $username,type: $type}) {
+    id,
+    type
   }
 }
 `;
@@ -36,13 +37,13 @@ const execute = async (variables) => {
 const handler = async (req,res) => {
 
   // get request input
-  const { username, password, email } = req.body.input;
+  const { username, password, email, type } = req.body.input;
 
   // run some business logic
   let hashPass = await bcrypt.hash(password,10)
 
   // execute the Hasura operation
-  const { data, errors } = await execute({ username, password: hashPass, email });
+  const { data, errors } = await execute({ username, password: hashPass, email,type });
 
   // if Hasura operation errors, then throw error
   if (errors) {
@@ -53,10 +54,10 @@ const handler = async (req,res) => {
     iat: Date.now() / 1000,
     iss: 'https://spaces-cloud.herokuapp.com/',
     "https://hasura.io/jwt/claims": {
-      "x-hasura-allowed-roles": ["user"],
+      "x-hasura-allowed-roles": data.insert_users_one.type == "user" ? ["user"] : ["professional"],
       "x-hasura-user-id": data.insert_users_one.id.toString(),
-      "x-hasura-default-role": "user",
-      "x-hasura-role": "user"
+      "x-hasura-default-role": data.insert_users_one.type == "user" ? "user" : "professional",
+      "x-hasura-role": data.insert_users_one.type == "user" ? "user" : "professional",
     },
     exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60)
   }

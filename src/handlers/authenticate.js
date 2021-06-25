@@ -8,7 +8,8 @@ query UserByIdentifier($identifier: String) {
     users(limit: 1,where: {email: {_eq: $identifier}}) {
       email,
       password, 
-      id
+      id,
+      type
     }
   }
 `;
@@ -18,7 +19,8 @@ query UserByIdentifier($identifier: String) {
     users(limit: 1,where: {username: {_eq: $identifier}}) {
       username,
       password, 
-      id
+      id,
+      type
     }
   }
 `;
@@ -75,10 +77,10 @@ const handler = async (req,res) => {
     iat: Date.now() / 1000,
     iss: 'https://spaces-cloud.herokuapp.com/',
     "https://hasura.io/jwt/claims": {
-      "x-hasura-allowed-roles": ["user"],
+      "x-hasura-allowed-roles": user.type == "user" ? ["user"] : ["professional"],
       "x-hasura-user-id": user.id.toString(),
-      "x-hasura-default-role": "user",
-      "x-hasura-role": "user"
+      "x-hasura-default-role": user.type == "user" ? ["user"] : ["professional"],
+      "x-hasura-role": user.type == "user" ? ["user"] : ["professional"]
     },
     exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60)
   }
