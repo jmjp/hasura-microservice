@@ -1,4 +1,4 @@
-
+var validator = require("email-validator");
 const fetch = require("node-fetch");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -42,8 +42,15 @@ const handler = async (req,res) => {
   const { username, password, email, type } = req.body.input;
 
   // run some business logic
-  let hashPass = await bcrypt.hash(password,10)
+  if(password.length < 6){
+    return res.status(400).jsn({message: "password is too short"});
+  }
+  if(validator.validate(email)){
+    return res.status(400).json({message: `the ${identifier} is not valid email`})
+  }
+  username = username.toString().toLowerCase();
 
+  let hashPass = await bcrypt.hash(password,10)
   // execute the Hasura operation
   const { data, errors } = await execute({ username, password: hashPass, email,type });
 
